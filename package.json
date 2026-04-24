@@ -1,0 +1,63 @@
+{
+  "name": "agape",
+  "version": "0.0.1",
+  "description": "Bible learnings dynamically tailored to modern developer burnout.",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "agape": "index.js"
+  },
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  },
+  "files": [
+    "index.js",
+    "postinstall.js",
+    "data/verse_embeddings.json",
+    "README.md"
+  ],
+  "keywords": [
+    "ai",
+    "ancient-wisdom",
+    "bhagavad-gita",
+    "bilingual",
+    "burnout",
+    "cli",
+    "daily-wisdom",
+    "developer-tools",
+    "developer-wellness",
+    "gita",
+    "groq",
+    "guidance",
+    "local-ai",
+    "mental-health",
+    "mindfulness",
+    "motivation",
+    "philosophy",
+    "productivity",
+    "semantic-search",
+    "spirituality",
+    "stress-relief",
+    "vector-search",
+    "wisdom"
+  ],
+  "author": "Ankil Shah",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ankilshah4193/agape.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ankilshah4193/agape/issues"
+  },
+  "homepage": "https://github.com/ankilshah4193/agape#readme",
+  "dependencies": {
+    "@xenova/transformers": "^2.0.1",
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "groq-sdk": "^0.3.3"
+  },
+  "overrides": {
+    "protobufjs": "^7.5.5"
+  }
+}
