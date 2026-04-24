@@ -19,7 +19,7 @@ const __dirname = path.dirname(__filename);
 const require = createRequire(import.meta.url);
 const pkg = require('./package.json');
 const DB_PATH = path.join(__dirname, 'data', 'verse_embeddings.json');
-const CONFIG_PATH = path.join(os.homedir(), '.bibleverse.json');
+const CONFIG_PATH = path.join(os.homedir(), '.berean.json');
 
 // Helper to title-case a language name (e.g., "french" -> "French", "SPANISH" -> "Spanish")
 const toTitleCase = (str) => {
@@ -95,7 +95,7 @@ const openBrowser = (url) => {
 const GROQ_KEYS_URL = 'https://console.groq.com/keys';
 
 // Interactive "press ENTER → open browser → paste key → validate" flow.
-// Shared by the onboarding wizard and `bibleverse --key` (invoked with no value).
+// Shared by the onboarding wizard and `berean --key` (invoked with no value).
 // Returns the cleaned key on success, or null if the user typed an invalid key.
 const promptForGroqKey = async () => {
   console.log(chalk.yellow.bold("Get your FREE API key from Groq (no credit card required!)"));
@@ -112,7 +112,7 @@ const promptForGroqKey = async () => {
   if (!cleanKey.startsWith('gsk_')) {
     console.log(chalk.red('\n❌ That does not look like a valid Groq API key (expected it to start with "gsk_").'));
     console.log(chalk.white('Generate a new one at: ') + chalk.blue.underline(GROQ_KEYS_URL));
-    console.log(chalk.white('Then run: ') + chalk.cyan('bibleverse --key "your_new_key_here"') + '\n');
+    console.log(chalk.white('Then run: ') + chalk.cyan('berean --key "your_new_key_here"') + '\n');
     return null;
   }
   return cleanKey;
@@ -161,8 +161,8 @@ const reportError = (error, { verbose = false } = {}) => {
       console.log(chalk.white('The key is likely invalid, expired, or has been revoked.\n'));
       console.log(chalk.yellow.bold('What to do:'));
       console.log(chalk.white('  1. Generate a new free key: ') + chalk.blue.underline(GROQ_KEYS_URL));
-      console.log(chalk.white('  2. Save it: ') + chalk.cyan('bibleverse --key "gsk_..."'));
-      console.log(chalk.white('     ') + chalk.dim('…or just run ') + chalk.cyan('bibleverse --key') + chalk.dim(' and we will walk you through it.\n'));
+      console.log(chalk.white('  2. Save it: ') + chalk.cyan('berean --key "gsk_..."'));
+      console.log(chalk.white('     ') + chalk.dim('…or just run ') + chalk.cyan('berean --key') + chalk.dim(' and we will walk you through it.\n'));
       break;
 
     case 'rate':
@@ -177,25 +177,25 @@ const reportError = (error, { verbose = false } = {}) => {
       console.log(chalk.white('  • Internet connection is live'));
       console.log(chalk.white('  • No VPN / corporate firewall blocking ') + chalk.dim('api.groq.com'));
       console.log(chalk.white('  • ') + chalk.dim('https://status.groq.com') + chalk.white(' is green'));
-      console.log(chalk.dim('\nTip: Bibleverse also works offline — you will get the verse, just without the AI commentary.\n'));
+      console.log(chalk.dim('\nTip: Berean also works offline — you will get the verse, just without the AI commentary.\n'));
       break;
 
     case 'db':
       console.log(chalk.red('\n❌ Local verse database is missing or corrupt.'));
       console.log(chalk.white('This file ships with the package, so something went wrong during install.\n'));
       console.log(chalk.yellow.bold('Fix it by reinstalling:'));
-      console.log(chalk.cyan('  npm uninstall -g bibleverse'));
-      console.log(chalk.cyan('  npm install -g bibleverse\n'));
-      console.log(chalk.dim('If the problem continues, please open an issue: ') + chalk.blue.underline('https://github.com/ankilshah4193/bibleverse/issues') + '\n');
+      console.log(chalk.cyan('  npm uninstall -g berean'));
+      console.log(chalk.cyan('  npm install -g berean\n'));
+      console.log(chalk.dim('If the problem continues, please open an issue: ') + chalk.blue.underline('https://github.com/ankilshah4193/berean/issues') + '\n');
       break;
 
     case 'model':
       console.log(chalk.red('\n❌ The local AI model failed to load.'));
-      console.log(chalk.white('On first run, Bibleverse downloads a tiny (~25 MB) embedding model to your cache.\n'));
+      console.log(chalk.white('On first run, Berean downloads a tiny (~25 MB) embedding model to your cache.\n'));
       console.log(chalk.yellow.bold('What to try:'));
       console.log(chalk.white('  • Make sure you have an internet connection for the initial download'));
       console.log(chalk.white('  • Clear the cache and retry: ') + chalk.cyan('rm -rf ~/.cache/huggingface'));
-      console.log(chalk.white('  • Or use: ') + chalk.cyan('bibleverse random') + chalk.dim(' — it skips the model entirely.\n'));
+      console.log(chalk.white('  • Or use: ') + chalk.cyan('berean random') + chalk.dim(' — it skips the model entirely.\n'));
       break;
 
     case 'empty':
@@ -207,7 +207,7 @@ const reportError = (error, { verbose = false } = {}) => {
       console.log(chalk.red('\n❌ Something went wrong:'));
       console.log(chalk.white('  ' + (error?.message || String(error))) + '\n');
       console.log(chalk.dim('If this keeps happening, please open an issue with the message above:'));
-      console.log(chalk.dim('  ') + chalk.blue.underline('https://github.com/ankilshah4193/bibleverse/issues') + '\n');
+      console.log(chalk.dim('  ') + chalk.blue.underline('https://github.com/ankilshah4193/berean/issues') + '\n');
       break;
   }
 
@@ -246,7 +246,7 @@ const isOnline = (timeoutMs = 1500) => {
 // Called in three scenarios:
 //   1. User is offline (no network at all).
 //   2. Groq call failed with a recoverable error (rate limit, auth, transient network, empty response).
-//   3. User ran `bibleverse random` and we skipped the Groq call for brevity (future use).
+//   3. User ran `berean random` and we skipped the Groq call for brevity (future use).
 //
 // The `reason` parameter controls the warning banner so the user knows why AI commentary
 // is disabled this time. The verse itself is always shown from the local database.
@@ -264,7 +264,7 @@ const renderVerseOnly = (matchedVerse, prefLang, reason = 'offline') => {
     empty:      '⚠️  Groq returned an empty response.',
   };
   const explanations = {
-    offline: 'Bibleverse is running in Offline Mode. AI mentor commentary is disabled, but here is your guiding verse:',
+    offline: 'Berean is running in Offline Mode. AI mentor commentary is disabled, but here is your guiding verse:',
     rate:    'AI mentor commentary is disabled for this request. Here is your guiding verse from the local database:',
     auth:    'AI mentor commentary is disabled until the key is updated. Here is your guiding verse from the local database:',
     network: 'AI mentor commentary is disabled for this request. Here is your guiding verse from the local database:',
@@ -304,7 +304,7 @@ const renderVerseOnly = (matchedVerse, prefLang, reason = 'offline') => {
   // Tailored fix-it hint at the bottom so the user knows exactly what to do next.
   const hints = {
     rate: `\nFix: wait a minute and try again. Check usage at ${chalk.blue.underline('https://console.groq.com/settings/limits')}\n`,
-    auth: `\nFix: run ${chalk.cyan('bibleverse --key')} to set a new free Groq API key (no credit card needed).\n`,
+    auth: `\nFix: run ${chalk.cyan('berean --key')} to set a new free Groq API key (no credit card needed).\n`,
     network: `\nFix: check your connection, VPN, or firewall. You can always try again in a moment.\n`,
     empty: `\nFix: try again in a moment — this is usually a transient hiccup on Groq's end.\n`,
     offline: '\n',
@@ -360,7 +360,7 @@ program
         if (!cleanKey.startsWith('gsk_')) {
           console.log(chalk.red('\n❌ That does not look like a valid Groq API key.'));
           console.log(chalk.white('Valid keys start with "gsk_". Generate one at: ') + chalk.blue.underline(GROQ_KEYS_URL));
-          console.log(chalk.white('Or run ') + chalk.cyan('bibleverse --key') + chalk.white(' with no value to open the browser for you.\n'));
+          console.log(chalk.white('Or run ') + chalk.cyan('berean --key') + chalk.white(' with no value to open the browser for you.\n'));
           process.exitCode = 1;
           return;
         }
@@ -374,7 +374,7 @@ program
 
     // --- 4. ONBOARDING WIZARD ---
     if (!config.GROQ_API_KEY || !config.PREFERRED_LANGUAGE) {
-      console.log(chalk.green.bold("\n🌟 Welcome to Bibleverse Setup Wizard"));
+      console.log(chalk.green.bold("\n🌟 Welcome to Berean Setup Wizard"));
       console.log(chalk.white("Let's get you connected to the Bible in 2 quick steps.\n"));
 
       if (!config.GROQ_API_KEY) {
@@ -392,7 +392,7 @@ program
 
       fs.writeFileSync(CONFIG_PATH, JSON.stringify(config));
       console.log(chalk.green("\n✅ Setup Complete! All settings saved."));
-      console.log(chalk.white("Now try: ") + chalk.cyan('bibleverse -t "I feel overwhelmed"') + "\n");
+      console.log(chalk.white("Now try: ") + chalk.cyan('berean -t "I feel overwhelmed"') + "\n");
       return;
     }
 
@@ -414,23 +414,23 @@ program
       const row = (cmdStr, desc) => '  ' + label(cmdStr.padEnd(COL)) + hint(desc);
 
       console.log();
-      console.log(chalk.yellow.bold('bibleverse') + chalk.white.dim('  ·  Bible Verses for 21st Century Challenges'));
+      console.log(chalk.yellow.bold('berean') + chalk.white.dim('  ·  Bible Verses for 21st Century Challenges'));
       console.log(rule);
 
       console.log(head('\nASK'));
-      console.log(row('bibleverse -t "<question>"',  'Get guidance for your situation'));
-      console.log(row('bibleverse random',           'Draw a random verse of the day'));
+      console.log(row('berean -t "<question>"',  'Get guidance for your situation'));
+      console.log(row('berean random',           'Draw a random verse of the day'));
 
       console.log(head('\nSETTINGS'));
-      console.log(row('bibleverse --lang "<language>"',  'Change your output language'));
-      console.log(row('bibleverse --key "gsk_..."',  'Update your Groq API key'));
-      console.log(row('bibleverse --key',            '…or set one interactively (opens browser)'));
-      console.log(row('bibleverse --version',        'Show the installed version'));
+      console.log(row('berean --lang "<language>"',  'Change your output language'));
+      console.log(row('berean --key "gsk_..."',  'Update your Groq API key'));
+      console.log(row('berean --key',            '…or set one interactively (opens browser)'));
+      console.log(row('berean --version',        'Show the installed version'));
 
       console.log(head('\nEXAMPLES'));
-      console.log(row('bibleverse -t "I feel burnt out"', ''));
-      console.log(row('bibleverse -t "afraid of failing"', ''));
-      console.log(row('bibleverse --lang "Spanish"',     ''));
+      console.log(row('berean -t "I feel burnt out"', ''));
+      console.log(row('berean -t "afraid of failing"', ''));
+      console.log(row('berean --lang "Spanish"',     ''));
 
       console.log(head('\nCURRENT SETUP'));
       console.log('  ' + hint('Language : ') + chalk.white(prefLang));
@@ -451,7 +451,7 @@ program
     // runs on an empty string and produces a meaningless best-match.
     if (!isRandomMode && options.topic !== undefined && options.topic.trim() === '') {
       console.log(chalk.red('\n❌ Your question is empty.'));
-      console.log(chalk.white('Try something like: ') + chalk.cyan('bibleverse -t "I feel overwhelmed by this release"') + '\n');
+      console.log(chalk.white('Try something like: ') + chalk.cyan('berean -t "I feel overwhelmed by this release"') + '\n');
       process.exitCode = 1;
       return;
     }
@@ -640,8 +640,8 @@ program
 
     } catch (error) {
       // All error classification and actionable guidance lives in reportError.
-      // Set DEBUG=bibleverse in the environment to also see the stack trace.
-      reportError(error, { verbose: process.env.DEBUG === 'bibleverse' });
+      // Set DEBUG=berean in the environment to also see the stack trace.
+      reportError(error, { verbose: process.env.DEBUG === 'berean' });
     }
   });
 
