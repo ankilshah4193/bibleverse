@@ -1,11 +1,11 @@
 {
-  "name": "agape",
-  "version": "0.0.1",
+  "name": "bibleverse",
+  "version": "0.0.3",
   "description": "Bible learnings dynamically tailored to modern developer burnout.",
   "main": "index.js",
   "type": "module",
   "bin": {
-    "agape": "index.js"
+    "bibleverse": "index.js"
   },
   "scripts": {
     "postinstall": "node postinstall.js"
@@ -45,12 +45,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ankilshah4193/agape.git"
+    "url": "git+https://github.com/ankilshah4193/bibleverse.git"
   },
   "bugs": {
-    "url": "https://github.com/ankilshah4193/agape/issues"
+    "url": "https://github.com/ankilshah4193/bibleverse/issues"
   },
-  "homepage": "https://github.com/ankilshah4193/agape#readme",
+  "homepage": "https://github.com/ankilshah4193/bibleverse#readme",
   "dependencies": {
     "@xenova/transformers": "^2.0.1",
     "chalk": "^5.3.0",
